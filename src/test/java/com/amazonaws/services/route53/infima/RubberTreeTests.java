@@ -77,11 +77,18 @@ public class RubberTreeTests
         }
 
         List<ResourceRecordSet> rrs = RubberTree.vulcanize("Z124", "www.example.com", "TXT", 60L, lattice, 8);
-
+        
         /*
-         * 20 primary chains, each of depth 8 = 20 x 8 = 160 1 alias to the
-         * secondary level = 1 4x secondary aliases = 4 4 x 10 secondary chains
-         * of length 8 = 4 x 10 x 8 = 320 total = 485
+         * 20 primary chains, each of depth 8:
+         *   20 x 8 = 160
+         * 1 alias to the secondary level:
+         *   1
+         * 4x secondary aliases:
+         *   4
+         * 4 x 10 secondary chains of length 8:
+         *   4 x 10 x 8 = 320
+         *
+         * total = 485
          */
         assertEquals(485, rrs.size());
     }
