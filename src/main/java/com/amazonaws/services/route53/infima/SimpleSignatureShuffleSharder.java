@@ -7,13 +7,8 @@ package com.amazonaws.services.route53.infima;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.List;
 
 /**
  * A shuffle sharder based on probabilistic hashing.
@@ -80,7 +75,7 @@ public class SimpleSignatureShuffleSharder<T> {
      */
     public Lattice<T> shuffleShard(Lattice<T> lattice, byte[] identifier, int endpointsPerCell)
             throws NoSuchAlgorithmException {
-        Lattice<T> chosen = new Lattice<T>(lattice.getDimensionNames());
+        Lattice<T> chosen = new Lattice<>(lattice.getDimensionNames());
 
         /*
          * Use our per-caller identifier to compute a hash, which will service
@@ -94,16 +89,16 @@ public class SimpleSignatureShuffleSharder<T> {
         /* Use the first 64 bits of the checksum as our seed for Random() */
         long shardSeed = 0;
         for (int i = 0; i < 8; i++) {
-            shardSeed += ((long) checksum[i] & 0xFFL) << (8 * i);
+            shardSeed += (checksum[i] & 0xFFL) << (8 * i);
         }
 
         /* And use that hash to seed our entropy pool */
         Random entropy = new Random(shardSeed);
 
         /* Shuffle the order of the values in each dimension */
-        List<List<String>> shuffledDimensionValues = new ArrayList<List<String>>();
+        List<List<String>> shuffledDimensionValues = new ArrayList<>();
         for (String dimensionName : lattice.getDimensionNames()) {
-            List<String> shuffledValues = new ArrayList<String>(lattice.getDimensionValues(dimensionName));
+            List<String> shuffledValues = new ArrayList<>(lattice.getDimensionValues(dimensionName));
             Collections.shuffle(shuffledValues, entropy);
             shuffledDimensionValues.add(shuffledValues);
         }
@@ -118,10 +113,9 @@ public class SimpleSignatureShuffleSharder<T> {
          */
         if (lattice.getDimensionality().size() == 1) {
             for (String dimensionValue : shuffledDimensionValues.get(0)) {
-                List<T> availableEndpoints = new ArrayList<T>(lattice.getEndpointsForSector(Arrays
-                        .asList(dimensionValue)));
+                List<T> availableEndpoints = new ArrayList<>(lattice.getEndpointsForSector(Collections.singletonList(dimensionValue)));
                 Collections.shuffle(availableEndpoints, entropy);
-                chosen.addEndpointsForSector(Arrays.asList(dimensionValue),
+                chosen.addEndpointsForSector(Collections.singletonList(dimensionValue),
                         availableEndpoints.subList(0, endpointsPerCell));
             }
 
@@ -143,13 +137,13 @@ public class SimpleSignatureShuffleSharder<T> {
          * item on each list of dimension values.
          */
         for (int i = 0; i < minimumDimensionSize; i++) {
-            List<String> coordinates = new ArrayList<String>();
+            List<String> coordinates = new ArrayList<>();
 
             for (int j = 0; j < lattice.getDimensionNames().size(); j++) {
                 coordinates.add(shuffledDimensionValues.get(j).remove(0));
             }
 
-            List<T> availableEndpoints = new ArrayList<T>(lattice.getEndpointsForSector(coordinates));
+            List<T> availableEndpoints = new ArrayList<>(lattice.getEndpointsForSector(coordinates));
             Collections.shuffle(availableEndpoints, entropy);
             chosen.addEndpointsForSector(coordinates, availableEndpoints.subList(0, endpointsPerCell));
         }

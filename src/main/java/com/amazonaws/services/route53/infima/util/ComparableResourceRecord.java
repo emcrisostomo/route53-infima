@@ -8,12 +8,11 @@ package com.amazonaws.services.route53.infima.util;
 import com.amazonaws.services.route53.model.ResourceRecord;
 
 /**
- * An Comparable Resource Record type for Route 53 Resource Records.
+ * A Comparable Resource Record type for Route 53 Resource Records.
  * 
  * This utility class encapsulates Route 53 ResourceRecords and allows them to
  * be used in Sets and other containers which require Comparable.
  */
-@SuppressWarnings("serial")
 public class ComparableResourceRecord extends ResourceRecord implements Comparable<ComparableResourceRecord> {
 
     /**

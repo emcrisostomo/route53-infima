@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -22,18 +23,18 @@ public class SimpleSignatureShuffleSharderTests {
         String[] endpoints = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
                 "P", "Q", "R", "S", "T" };
 
-        SingleCellLattice<String> lattice = new SingleCellLattice<String>();
+        SingleCellLattice<String> lattice = new SingleCellLattice<>();
         lattice.addEndpoints(Arrays.asList(endpoints));
 
-        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<String>(5353L);
+        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<>(5353L);
 
         /*
          * Compute 1,000 different shards and count how often each letter is
          * observed
          */
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
-            Lattice<String> shard = sharder.shuffleShard(lattice, new Integer(i).toString().getBytes(), 4);
+            Lattice<String> shard = sharder.shuffleShard(lattice, Integer.valueOf(i).toString().getBytes(), 4);
 
             /*
              * Check that each shard has 4 endpoints and is itself a single-cell
@@ -72,19 +73,19 @@ public class SimpleSignatureShuffleSharderTests {
         String[] endpointsA = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
         String[] endpointsB = new String[] { "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" };
 
-        OneDimensionalLattice<String> lattice = new OneDimensionalLattice<String>("AZ");
+        OneDimensionalLattice<String> lattice = new OneDimensionalLattice<>("AZ");
         lattice.addEndpoints("us-east-1a", Arrays.asList(endpointsA));
         lattice.addEndpoints("us-east-1b", Arrays.asList(endpointsB));
 
-        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<String>(5353L);
+        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<>(5353L);
 
         /*
          * Compute 1,000 different shards and count how often each letter is
          * observed
          */
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 100000; i++) {
-            Lattice<String> shard = sharder.shuffleShard(lattice, new Integer(i).toString().getBytes(), 2);
+            Lattice<String> shard = sharder.shuffleShard(lattice, Integer.valueOf(i).toString().getBytes(), 2);
 
             /*
              * Check that each shard has 4 endpoints and is itself a 2 cell 1-D
@@ -103,12 +104,12 @@ public class SimpleSignatureShuffleSharderTests {
             }
 
             /* Confirm that endpoints stay in their own cells */
-            for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a"))) {
-                assertEquals(true, Arrays.asList(endpointsA).contains(letter));
+            for (String letter : shard.getEndpointsForSector(List.of("us-east-1a"))) {
+                assertTrue(Arrays.asList(endpointsA).contains(letter));
             }
 
-            for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b"))) {
-                assertEquals(true, Arrays.asList(endpointsB).contains(letter));
+            for (String letter : shard.getEndpointsForSector(List.of("us-east-1b"))) {
+                assertTrue(Arrays.asList(endpointsB).contains(letter));
             }
         }
 
@@ -135,21 +136,21 @@ public class SimpleSignatureShuffleSharderTests {
         String[] endpointsB1 = new String[] { "K", "L", "M", "N", "O" };
         String[] endpointsB2 = new String[] { "P", "Q", "R", "S", "T" };
 
-        TwoDimensionalLattice<String> lattice = new TwoDimensionalLattice<String>("AZ", "Version");
+        TwoDimensionalLattice<String> lattice = new TwoDimensionalLattice<>("AZ", "Version");
         lattice.addEndpoints("us-east-1a", "1", Arrays.asList(endpointsA1));
         lattice.addEndpoints("us-east-1a", "2", Arrays.asList(endpointsA2));
         lattice.addEndpoints("us-east-1b", "1", Arrays.asList(endpointsB1));
         lattice.addEndpoints("us-east-1b", "2", Arrays.asList(endpointsB2));
 
-        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<String>(5353L);
+        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<>(5353L);
 
         /*
          * Compute 1,000 different shards and count how often each letter is
          * observed
          */
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
-            Lattice<String> shard = sharder.shuffleShard(lattice, new Integer(i).toString().getBytes(), 2);
+            Lattice<String> shard = sharder.shuffleShard(lattice, Integer.valueOf(i).toString().getBytes(), 2);
 
             /*
              * Check that each shard has 4 endpoints and is itself a 4 cell 1-D
@@ -170,22 +171,22 @@ public class SimpleSignatureShuffleSharderTests {
             /* Confirm that endpoints stay in their own cells */
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "1")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "1"))) {
-                    assertEquals(true, Arrays.asList(endpointsA1).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA1).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "2")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "2"))) {
-                    assertEquals(true, Arrays.asList(endpointsA2).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA2).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "1")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "1"))) {
-                    assertEquals(true, Arrays.asList(endpointsB1).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB1).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "2")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "2"))) {
-                    assertEquals(true, Arrays.asList(endpointsB2).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB2).contains(letter));
                 }
             }
         }
@@ -215,7 +216,7 @@ public class SimpleSignatureShuffleSharderTests {
         String[] endpointsB2 = new String[] { "Q", "R", "S", "T" };
         String[] endpointsB3 = new String[] { "U", "V", "W", "X" };
 
-        TwoDimensionalLattice<String> lattice = new TwoDimensionalLattice<String>("AZ", "Version");
+        TwoDimensionalLattice<String> lattice = new TwoDimensionalLattice<>("AZ", "Version");
         lattice.addEndpoints("us-east-1a", "1", Arrays.asList(endpointsA1));
         lattice.addEndpoints("us-east-1a", "2", Arrays.asList(endpointsA2));
         lattice.addEndpoints("us-east-1a", "3", Arrays.asList(endpointsA3));
@@ -223,15 +224,15 @@ public class SimpleSignatureShuffleSharderTests {
         lattice.addEndpoints("us-east-1b", "2", Arrays.asList(endpointsB2));
         lattice.addEndpoints("us-east-1b", "3", Arrays.asList(endpointsB3));
 
-        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<String>(5353L);
+        SimpleSignatureShuffleSharder<String> sharder = new SimpleSignatureShuffleSharder<>(5353L);
 
         /*
          * Compute 1,000 different shards and count how often each letter is
          * observed
          */
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
-            Lattice<String> shard = sharder.shuffleShard(lattice, new Integer(i).toString().getBytes(), 2);
+            Lattice<String> shard = sharder.shuffleShard(lattice, Integer.valueOf(i).toString().getBytes(), 2);
 
             /*
              * Check that each shard has 4 endpoints and is itself a 4 cell 1-D
@@ -252,32 +253,32 @@ public class SimpleSignatureShuffleSharderTests {
             /* Confirm that endpoints stay in their own cells */
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "1")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "1"))) {
-                    assertEquals(true, Arrays.asList(endpointsA1).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA1).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "2")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "2"))) {
-                    assertEquals(true, Arrays.asList(endpointsA2).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA2).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "3")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "3"))) {
-                    assertEquals(true, Arrays.asList(endpointsA3).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA3).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "1")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "1"))) {
-                    assertEquals(true, Arrays.asList(endpointsB1).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB1).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "2")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "2"))) {
-                    assertEquals(true, Arrays.asList(endpointsB2).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB2).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "3")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "3"))) {
-                    assertEquals(true, Arrays.asList(endpointsB3).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB3).contains(letter));
                 }
             }
         }

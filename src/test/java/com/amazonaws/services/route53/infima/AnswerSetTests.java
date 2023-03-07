@@ -31,9 +31,9 @@ public class AnswerSetTests {
 
         ComparableResourceRecord[] records = new ComparableResourceRecord[3];
         answer.toArray(records);
-        assertEquals(records[0].getValue(), "1.1.1.1");
-        assertEquals(records[1].getValue(), "2.2.2.2");
-        assertEquals(records[2].getValue(), "3.3.3.3");
+        assertEquals("1.1.1.1", records[0].getValue());
+        assertEquals("2.2.2.2", records[1].getValue());
+        assertEquals("3.3.3.3", records[2].getValue());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class AnswerSetTests {
 
         assertEquals(1, answer.toResourceRecordSets("Z123", "www.example.com", "A", 60L).size());
         ResourceRecordSet rrset = answer.toResourceRecordSets("Z123", "www.example.com", "A", 60L).get(0);
-        assertEquals(new Long(60L), rrset.getTTL());
+        assertEquals(Long.valueOf(60L), rrset.getTTL());
         assertEquals("A", rrset.getType());
         assertEquals("www.example.com", rrset.getName());
         assertEquals("1.1.1.1", rrset.getResourceRecords().get(0).getValue());
@@ -64,7 +64,7 @@ public class AnswerSetTests {
         assertEquals(3, rrsets.size());
 
         /* First rrset should be the leafnode */
-        assertEquals(new Long(60L), rrsets.get(0).getTTL());
+        assertEquals(Long.valueOf(60L), rrsets.get(0).getTTL());
         assertEquals("A", rrsets.get(0).getType());
         assertEquals("1.1.1.1", rrsets.get(0).getResourceRecords().get(0).getValue());
         assertEquals("2.2.2.2", rrsets.get(0).getResourceRecords().get(1).getValue());

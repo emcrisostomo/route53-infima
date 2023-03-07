@@ -7,7 +7,6 @@ package com.amazonaws.services.route53.infima;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -19,8 +18,10 @@ import com.amazonaws.services.route53.model.ResourceRecordSet;
 
 public class RubberTree {
 
+    private RubberTree(){}
+
     /* Helper class: Compare sublists by size */
-    static private class sublistComparator implements Comparator<List<String>> {
+    private static class SublistComparator implements Comparator<List<String>> {
         @Override
         public int compare(List<String> arg0, List<String> arg1) {
             return arg0.size() - arg1.size();
@@ -56,17 +57,16 @@ public class RubberTree {
             return vulcanize(hostedZoneId, name, type, ttl, lattice.getAllEndpoints(), recordsPerRecordSet);
         }
 
-        List<List<String>> coordinates = new ArrayList<List<String>>();
-        coordinates.addAll(lattice.getAllCoordinates());
-        Collections.sort(coordinates, new sublistComparator());
+        List<List<String>> coordinates = new ArrayList<>(lattice.getAllCoordinates());
+        coordinates.sort(new SublistComparator());
 
-        List<HealthCheckedResourceRecord> hcrr = new ArrayList<HealthCheckedResourceRecord>();
+        List<HealthCheckedResourceRecord> hcrr = new ArrayList<>();
 
         /* Splice in the remaining endpoints */
         for (List<String> coordinate : lattice.getAllCoordinates()) {
             Collection<HealthCheckedResourceRecord> endpointsToSplice = lattice.getEndpointsForSector(coordinate);
             int newSize = hcrr.size() + endpointsToSplice.size();
-            float spacing = newSize / endpointsToSplice.size();
+            float spacing = (float) newSize / endpointsToSplice.size();
             int i = 0;
             for (HealthCheckedResourceRecord endpoint : endpointsToSplice) {
                 hcrr.add((int) (i++ * spacing), endpoint);
@@ -100,15 +100,7 @@ public class RubberTree {
                     String subTreePrefix = dimension.substring(0, Math.min(dimension.length(), 30)) + "-"
                             + value.substring(0, Math.min(value.length(), 30));
                     String subTreeName = subTreePrefix + "." + secondaryName;
-                    AliasTarget target = new AliasTarget();
-                    target.setDNSName(subTreeName);
-                    target.setEvaluateTargetHealth(true);
-                    target.setHostedZoneId(hostedZoneId);
-                    ResourceRecordSet rr = new ResourceRecordSet();
-                    rr.setName(secondaryName);
-                    rr.setWeight(0L);
-                    rr.setType(type);
-                    rr.setAliasTarget(target);
+                    ResourceRecordSet rr = buildTarget(hostedZoneId, type, secondaryName, subTreeName);
                     rr.setSetIdentifier(subTreePrefix);
 
                     vulcanized.addAll(vulcanize(hostedZoneId, subTreeName, type, ttl,
@@ -118,21 +110,28 @@ public class RubberTree {
             }
 
             /* Add an alias to the secondary level */
-            AliasTarget target = new AliasTarget();
-            target.setDNSName(secondaryName);
-            target.setEvaluateTargetHealth(true);
-            target.setHostedZoneId(hostedZoneId);
-            ResourceRecordSet rr = new ResourceRecordSet();
-            rr.setName(name);
-            rr.setWeight(0L);
-            rr.setType(type);
-            rr.setAliasTarget(target);
+            ResourceRecordSet rr = buildTarget(hostedZoneId, type, name, secondaryName);
             rr.setSetIdentifier("secondary for " + name);
 
             vulcanized.add(rr);
         }
 
         return vulcanized;
+    }
+
+    private static ResourceRecordSet buildTarget(String hostedZoneId, String type, String secondaryName, String subTreeName)
+    {
+        AliasTarget target = new AliasTarget();
+        target.setDNSName(subTreeName);
+        target.setEvaluateTargetHealth(true);
+        target.setHostedZoneId(hostedZoneId);
+        ResourceRecordSet rr = new ResourceRecordSet();
+        rr.setName(secondaryName);
+        rr.setWeight(0L);
+        rr.setType(type);
+        rr.setAliasTarget(target);
+
+        return rr;
     }
 
     /**
@@ -158,8 +157,8 @@ public class RubberTree {
      */
     public static List<ResourceRecordSet> vulcanize(String hostedZoneId, String name, String type, Long ttl,
             List<HealthCheckedResourceRecord> records, int recordsPerRecordSet) {
-        List<ResourceRecordSet> rrs = new ArrayList<ResourceRecordSet>();
-        List<HealthCheckedResourceRecord> hcrr = new ArrayList<HealthCheckedResourceRecord>(records);
+        List<ResourceRecordSet> rrs = new ArrayList<>();
+        List<HealthCheckedResourceRecord> hcrr = new ArrayList<>(records);
 
         if (recordsPerRecordSet > 8) {
             throw new IllegalArgumentException("Rubber Tree supports 8 or fewer records or record set");
@@ -191,7 +190,7 @@ public class RubberTree {
         answer.addAll(hcrr);
         rrs.addAll(answer.toResourceRecordSets(hostedZoneId, name, type, ttl));
 
-        for (List<HealthCheckedResourceRecord> fragment : new IterableSubListGenerator<HealthCheckedResourceRecord>(
+        for (List<HealthCheckedResourceRecord> fragment : new IterableSubListGenerator<>(
                 records, recordsPerRecordSet - 1)) {
             answer = new AnswerSet();
             answer.addAll(fragment);

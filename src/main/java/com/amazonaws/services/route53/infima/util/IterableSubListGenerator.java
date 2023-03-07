@@ -18,10 +18,10 @@ import java.util.NoSuchElementException;
  */
 public class IterableSubListGenerator<T> implements Iterable<List<T>> {
 
-    private class SubListIterator<E> implements Iterator<List<E>> {
+    private static class SubListIterator<E> implements Iterator<List<E>> {
         private final List<E> masterList;
         private final int subListSize;
-        private int[] cursors;
+        private final int[] cursors;
 
         public SubListIterator(List<E> masterList, int subListSize) {
             this.masterList = masterList;
@@ -46,11 +46,11 @@ public class IterableSubListGenerator<T> implements Iterable<List<T>> {
 
         @Override
         public List<E> next() {
-            if (hasNext() == false) {
+            if (!hasNext()) {
                 throw new NoSuchElementException();
             }
 
-            List<E> subList = new ArrayList<E>(subListSize);
+            List<E> subList = new ArrayList<>(subListSize);
             for (int index : cursors) {
                 subList.add(masterList.get(index));
             }
@@ -98,7 +98,7 @@ public class IterableSubListGenerator<T> implements Iterable<List<T>> {
      */
     @Override
     public Iterator<List<T>> iterator() {
-        return new SubListIterator<T>(masterList, subListSize);
+        return new SubListIterator<>(masterList, subListSize);
     }
 
 }

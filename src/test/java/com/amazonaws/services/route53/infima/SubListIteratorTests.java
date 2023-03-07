@@ -19,7 +19,7 @@ public class SubListIteratorTests {
     @Test
     public void fiveChooseThreeTest() {
         List<String> letters = Arrays.asList("A", "B", "C", "D", "E");
-        IterableSubListGenerator<String> generator = new IterableSubListGenerator<String>(letters, 3);
+        IterableSubListGenerator<String> generator = new IterableSubListGenerator<>(letters, 3);
         List<String> expectedSubLists = Arrays.asList("[A, B, C]", "[A, B, D]", "[A, B, E]", "[A, C, D]", "[A, C, E]",
                 "[A, D, E]", "[B, C, D]", "[B, C, E]", "[B, D, E]", "[C, D, E]");
 
@@ -33,7 +33,7 @@ public class SubListIteratorTests {
     public void twentyChooseFourTest() {
         List<String> letters = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
                 "P", "Q", "R", "S", "T");
-        IterableSubListGenerator<String> generator = new IterableSubListGenerator<String>(letters, 4);
+        IterableSubListGenerator<String> generator = new IterableSubListGenerator<>(letters, 4);
 
         int i = 0;
         for (List<String> subList : generator) {
@@ -41,14 +41,14 @@ public class SubListIteratorTests {
             i++;
         }
 
-        assertEquals((20 * 19 * 18 * 17) / (4 * 3 * 2 * 1), i);
+        assertEquals((20 * 19 * 18 * 17) / (4 * 3 * 2), i);
     }
 
     @Test
     public void twentyChooseOneTest() {
         List<String> letters = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
                 "P", "Q", "R", "S", "T");
-        IterableSubListGenerator<String> generator = new IterableSubListGenerator<String>(letters, 1);
+        IterableSubListGenerator<String> generator = new IterableSubListGenerator<>(letters, 1);
 
         int i = 0;
         for (List<String> subList : generator) {

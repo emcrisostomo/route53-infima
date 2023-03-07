@@ -9,13 +9,14 @@ import org.junit.Test;
 import com.amazonaws.services.route53.infima.util.HealthCheckedResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 
-public class RubbeeTreeTests {
+public class RubberTreeTests
+{
 
     @Test
     public void smallRubberTreeTest() {
         String[] endpoints = new String[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
-        SingleCellLattice<HealthCheckedResourceRecord> lattice = new SingleCellLattice<HealthCheckedResourceRecord>();
+        SingleCellLattice<HealthCheckedResourceRecord> lattice = new SingleCellLattice<>();
 
         for (String endpoint : endpoints) {
             HealthCheckedResourceRecord hcrr = new HealthCheckedResourceRecord(endpoint, endpoint);
@@ -35,7 +36,7 @@ public class RubbeeTreeTests {
         String[] endpoints = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
                 "P", "Q", "R", "S", "T" };
 
-        SingleCellLattice<HealthCheckedResourceRecord> lattice = new SingleCellLattice<HealthCheckedResourceRecord>();
+        SingleCellLattice<HealthCheckedResourceRecord> lattice = new SingleCellLattice<>();
 
         for (String endpoint : endpoints) {
             HealthCheckedResourceRecord hcrr = new HealthCheckedResourceRecord(endpoint, endpoint);
@@ -56,7 +57,7 @@ public class RubbeeTreeTests {
         String[] endpointsB1 = new String[] { "K", "L", "M", "N", "O" };
         String[] endpointsB2 = new String[] { "P", "Q", "R", "S", "T" };
 
-        TwoDimensionalLattice<HealthCheckedResourceRecord> lattice = new TwoDimensionalLattice<HealthCheckedResourceRecord>(
+        TwoDimensionalLattice<HealthCheckedResourceRecord> lattice = new TwoDimensionalLattice<>(
                 "AZ", "Version");
         for (String endpoint : endpointsA1) {
             HealthCheckedResourceRecord hcrr = new HealthCheckedResourceRecord(endpoint, endpoint);

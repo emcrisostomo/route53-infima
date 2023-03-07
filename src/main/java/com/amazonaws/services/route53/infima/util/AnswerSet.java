@@ -5,7 +5,10 @@
  */
 package com.amazonaws.services.route53.infima.util;
 
-import java.io.UnsupportedEncodingException;
+import com.amazonaws.services.route53.model.AliasTarget;
+import com.amazonaws.services.route53.model.ResourceRecord;
+import com.amazonaws.services.route53.model.ResourceRecordSet;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,9 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import com.amazonaws.services.route53.model.AliasTarget;
-import com.amazonaws.services.route53.model.ResourceRecord;
-import com.amazonaws.services.route53.model.ResourceRecordSet;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * An Answer Set type for Route 53 Resource Records.
@@ -34,7 +35,6 @@ import com.amazonaws.services.route53.model.ResourceRecordSet;
  * As Route 53 supports full backtracking when answering queries, these alias
  * chains may be used in place of any regular resource record set.
  */
-@SuppressWarnings("serial")
 public class AnswerSet extends TreeSet<ComparableResourceRecord> {
 
     /**
@@ -55,10 +55,10 @@ public class AnswerSet extends TreeSet<ComparableResourceRecord> {
      *         returned by this method.
      */
     public List<ResourceRecordSet> toResourceRecordSets(String hostedZoneId, String name, String type, long ttl) {
-        ArrayList<ResourceRecordSet> rrsList = new ArrayList<ResourceRecordSet>();
-        TreeSet<String> healthcheckIds = new TreeSet<String>();
+        ArrayList<ResourceRecordSet> rrsList = new ArrayList<>();
+        TreeSet<String> healthcheckIds = new TreeSet<>();
 
-        List<ResourceRecord> rrs = new ArrayList<ResourceRecord>();
+        List<ResourceRecord> rrs = new ArrayList<>();
         for (ComparableResourceRecord crr : this) {
             /* Get all of the healthchecks associated with the answer set */
             if (crr instanceof HealthCheckedResourceRecord) {
@@ -80,7 +80,7 @@ public class AnswerSet extends TreeSet<ComparableResourceRecord> {
         leafNode.setSetIdentifier("leafnode");
         leafNode.setName(name);
 
-        List<String> healthchecksRemaining = new ArrayList<String>(healthcheckIds);
+        List<String> healthchecksRemaining = new ArrayList<>(healthcheckIds);
         if (healthchecksRemaining.size() > 0) {
             leafNode.setHealthCheckId(healthchecksRemaining.remove(0));
         }
@@ -141,15 +141,15 @@ public class AnswerSet extends TreeSet<ComparableResourceRecord> {
     private String checksumResourceRecordSetData(ResourceRecordSet rr) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(rr.getType().getBytes("UTF-8"));
+            digest.update(rr.getType().getBytes(UTF_8));
 
             if (rr.getAliasTarget() != null) {
-                digest.update(rr.getAliasTarget().getHostedZoneId().getBytes("UTF-8"));
-                digest.update(rr.getAliasTarget().getDNSName().getBytes("UTF-8"));
-                digest.update(rr.getAliasTarget().getEvaluateTargetHealth().toString().getBytes("UTF-8"));
+                digest.update(rr.getAliasTarget().getHostedZoneId().getBytes(UTF_8));
+                digest.update(rr.getAliasTarget().getDNSName().getBytes(UTF_8));
+                digest.update(rr.getAliasTarget().getEvaluateTargetHealth().toString().getBytes(UTF_8));
             } else {
-                digest.update(rr.getResourceRecords().toString().getBytes("UTF-8"));
-                digest.update(rr.getTTL().toString().getBytes("UTF-8"));
+                digest.update(rr.getResourceRecords().toString().getBytes(UTF_8));
+                digest.update(rr.getTTL().toString().getBytes(UTF_8));
             }
 
             /* Return the digest in base 36 */
@@ -158,9 +158,6 @@ public class AnswerSet extends TreeSet<ComparableResourceRecord> {
         } catch (NoSuchAlgorithmException e) {
             /* Unreachable: MD5 is built in */
             throw new RuntimeException("MD5 is not supported");
-        } catch (UnsupportedEncodingException e) {
-            /* Unreachable: UTF-8 is built in */
-            throw new RuntimeException("UTF-8 is not supported");
         }
     }
 }

@@ -113,8 +113,7 @@ public class Lattice<T> {
      * strings, but this class also implements Comparable so that these
      * coordinates can be used as ordered keys in a map.
      */
-    @SuppressWarnings("serial")
-    private class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
+    private static class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
 
         public Coordinate(Collection<String> sectorCoordinates) {
             super(sectorCoordinates);
@@ -156,7 +155,7 @@ public class Lattice<T> {
      * [ "us-east-1a", "v2.1" ] -> [
      * set-of-end-points-in-us-east-1a-running-v2.1 ]
      */
-    private final Map<Coordinate, Collection<T>> endpointsByCoordinate = new TreeMap<Coordinate, Collection<T>>();
+    private final Map<Coordinate, Collection<T>> endpointsByCoordinate = new TreeMap<>();
 
     /**
      * Create an n-dimensional Lattice where each dimension represents a
@@ -167,14 +166,14 @@ public class Lattice<T> {
      *            List of human-meaningful names for the dimensions.
      */
     public Lattice(List<String> dimensionNames) {
-        if (dimensionNames.size() == 0) {
+        if (dimensionNames.isEmpty()) {
             throw new IllegalArgumentException("At least one dimension is required");
         }
         this.dimensionNames = dimensionNames;
-        this.valuesByDimension = new HashMap<String, Set<String>>(dimensionNames.size());
+        this.valuesByDimension = new HashMap<>(dimensionNames.size());
 
         for (String dimensionName : dimensionNames) {
-            this.valuesByDimension.put(dimensionName, new HashSet<String>());
+            this.valuesByDimension.put(dimensionName, new HashSet<>());
         }
     }
 
@@ -191,7 +190,7 @@ public class Lattice<T> {
             throw new IllegalArgumentException("Mismatch between dimensions of lattice and sector");
         }
 
-        ArrayList<T> toBeAdded = new ArrayList<T>(endpoints);
+        ArrayList<T> toBeAdded = new ArrayList<>(endpoints);
         Collection<T> existing = endpointsByCoordinate.get(new Coordinate(sectorCoordinates));
         if (existing != null) {
             toBeAdded.addAll(existing);
@@ -225,7 +224,7 @@ public class Lattice<T> {
      * @return all end-points in the lattice
      */
     public List<T> getAllEndpoints() {
-        List<T> allEndpoints = new ArrayList<T>();
+        List<T> allEndpoints = new ArrayList<>();
         for (Collection<T> endpoints : endpointsByCoordinate.values()) {
             allEndpoints.addAll(endpoints);
         }
@@ -238,13 +237,8 @@ public class Lattice<T> {
      * @return A list of the coordinates for all cells in the lattice
      */
     public Set<List<String>> getAllCoordinates() {
-        Set<List<String>> allCoordinates = new HashSet<List<String>>();
 
-        for (Coordinate coordinate : endpointsByCoordinate.keySet()) {
-            allCoordinates.add(coordinate);
-        }
-
-        return allCoordinates;
+        return new HashSet<>(endpointsByCoordinate.keySet());
     }
 
     /**
@@ -253,7 +247,7 @@ public class Lattice<T> {
      * @return The dimensionality of this lattice
      */
     public Map<String, Integer> getDimensionality() {
-        Map<String, Integer> dimensionality = new HashMap<String, Integer>(dimensionNames.size());
+        Map<String, Integer> dimensionality = new HashMap<>(dimensionNames.size());
 
         for (String dimension : dimensionNames) {
             dimensionality.put(dimension, getDimensionValues(dimension).size());
@@ -316,16 +310,20 @@ public class Lattice<T> {
      * @return A sublattice of the remaining endpoints after a simulated failure
      */
     public Lattice<T> simulateFailure(String dimensionName, String dimensionValue) {
-        Lattice<T> sublattice = new Lattice<T>(dimensionNames);
+        Lattice<T> sublattice = new Lattice<>(dimensionNames);
 
         int dimensionNumber = dimensionNames.indexOf(dimensionName);
         if (dimensionNumber == -1) {
             throw new IllegalArgumentException("Unknown dimension name");
         }
 
-        for (List<String> coordinate : endpointsByCoordinate.keySet()) {
-            if (!coordinate.get(dimensionNumber).equals(dimensionValue)) {
-                sublattice.addEndpointsForSector(coordinate, endpointsByCoordinate.get(coordinate));
+        for (var entry : endpointsByCoordinate.entrySet())
+        {
+            final var key = entry.getKey();
+
+            if (!key.get(dimensionNumber).equals(dimensionValue))
+            {
+                sublattice.addEndpointsForSector(key, entry.getValue());
             }
         }
 

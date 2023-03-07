@@ -9,12 +9,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An health checked Resource Record type for Route 53 Resource Records.
+ * A health checked Resource Record type for Route 53 Resource Records.
  * 
  * This utility class encapsulates Route 53 ResourceRecords and allows them to
  * be directly associated with Route 53 health checks.
  */
-@SuppressWarnings("serial")
 public class HealthCheckedResourceRecord extends ComparableResourceRecord {
     private final List<String> healthcheckIds;
 

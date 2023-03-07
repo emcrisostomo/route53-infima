@@ -37,9 +37,8 @@ import com.amazonaws.services.route53.infima.util.IterableSubListGenerator;
  */
 public class StatefulSearchingShuffleSharder<T> {
 
-    @SuppressWarnings("serial")
     public static class NoShardsAvailableException extends Exception {
-    };
+    }
 
     /**
      * API for a List-based fragment store
@@ -54,7 +53,7 @@ public class StatefulSearchingShuffleSharder<T> {
          * @param fragment
          *            The fragment to be saved
          */
-        public void saveFragment(List<T> fragment);
+        void saveFragment(List<T> fragment);
 
         /**
          * Has a fragment been used?
@@ -63,7 +62,7 @@ public class StatefulSearchingShuffleSharder<T> {
          *            The fragment we are curious about
          * @return has the fragment been used
          */
-        public boolean isFragmentUsed(List<T> fragment);
+        boolean isFragmentUsed(List<T> fragment);
     }
 
     private final FragmentStore<T> store;
@@ -96,8 +95,6 @@ public class StatefulSearchingShuffleSharder<T> {
      * 
      * @param lattice
      *            The Infima Lattice to use
-     * @param identifier
-     *            The identifier
      * @param endpointsPerCell
      *            The number of endpoints to choose from each eligible lattice
      *            cell
@@ -112,12 +109,12 @@ public class StatefulSearchingShuffleSharder<T> {
             throws NoShardsAvailableException {
         Lattice<T> shard = shuffleShardRecursiveHelper(lattice, endpointsPerCell, maximumOverlap);
 
-        if (shard.getAllEndpoints().size() == 0) {
+        if (shard.getAllEndpoints().isEmpty()) {
             throw new NoShardsAvailableException();
         }
 
         /* Mark the fragments as used to that overlap can be avoided */
-        for (List<T> fragment : new IterableSubListGenerator<T>(shard.getAllEndpoints(), maximumOverlap + 1)) {
+        for (List<T> fragment : new IterableSubListGenerator<>(shard.getAllEndpoints(), maximumOverlap + 1)) {
             store.saveFragment(fragment);
         }
 
@@ -125,7 +122,7 @@ public class StatefulSearchingShuffleSharder<T> {
     }
 
     private Lattice<T> shuffleShardRecursiveHelper(Lattice<T> lattice, int endpointsPerCell, int maximumOverlap) {
-        List<List<String>> allCoordinates = new ArrayList<List<String>>(lattice.getAllCoordinates());
+        List<List<String>> allCoordinates = new ArrayList<>(lattice.getAllCoordinates());
 
         /*
          * The first cell we pick should be fine, but if we resort to
@@ -148,14 +145,14 @@ public class StatefulSearchingShuffleSharder<T> {
             }
 
             /* Get the end-points in the chosen coordinate */
-            List<T> endpoints = new ArrayList<T>(lattice.getEndpointsForSector(coordinate));
+            List<T> endpoints = new ArrayList<>(lattice.getEndpointsForSector(coordinate));
 
             /*
              * Just as with the cells, we need to be prepared to iterate over
              * every combination of end-points within the cell.
              */
             Collections.shuffle(endpoints);
-            for (List<T> fragment : new IterableSubListGenerator<T>(endpoints, endpointsPerCell)) {
+            for (List<T> fragment : new IterableSubListGenerator<>(endpoints, endpointsPerCell)) {
                 /*
                  * If the contents of even one cell can cause a collision, we
                  * need to filter the collisions. There's no sense in a wasteful
@@ -170,7 +167,7 @@ public class StatefulSearchingShuffleSharder<T> {
                  * search.
                  */
                 Lattice<T> pickedRecursively = shuffleShardRecursiveHelper(compliment, endpointsPerCell, maximumOverlap);
-                List<T> combined = new ArrayList<T>(fragment);
+                List<T> combined = new ArrayList<>(fragment);
                 combined.addAll(pickedRecursively.getAllEndpoints());
 
                 if (combined.size() >= maximumOverlap && areThereTooManyCollisions(combined, maximumOverlap)) {
@@ -191,7 +188,7 @@ public class StatefulSearchingShuffleSharder<T> {
          * Every option has been exhausted and we didn't find anything. Return
          * an empty lattice
          */
-        return new Lattice<T>(lattice.getDimensionNames());
+        return new Lattice<>(lattice.getDimensionNames());
     }
 
     private boolean areThereTooManyCollisions(List<T> haystack, int maximumOverlap) {
@@ -201,7 +198,7 @@ public class StatefulSearchingShuffleSharder<T> {
             return store.isFragmentUsed(haystack);
         }
 
-        for (List<T> fragment : new IterableSubListGenerator<T>(haystack, maximumOverlap + 1)) {
+        for (List<T> fragment : new IterableSubListGenerator<>(haystack, maximumOverlap + 1)) {
             if (store.isFragmentUsed(fragment)) {
                 return true;
             }

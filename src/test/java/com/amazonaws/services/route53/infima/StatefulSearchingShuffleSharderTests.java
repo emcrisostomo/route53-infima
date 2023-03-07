@@ -21,8 +21,8 @@ import com.amazonaws.services.route53.infima.StatefulSearchingShuffleSharder.NoS
 
 public class StatefulSearchingShuffleSharderTests {
 
-    private class MockFragmentStore implements FragmentStore<String> {
-        private final HashSet<String> store = new HashSet<String>();
+    private static class MockFragmentStore implements FragmentStore<String> {
+        private final HashSet<String> store = new HashSet<>();
 
         @Override
         public void saveFragment(List<String> fragment) {
@@ -41,11 +41,11 @@ public class StatefulSearchingShuffleSharderTests {
     public void overlapStatefulSearchingShuffleSharderTest() {
         /* Use a single cell lattice with 20 endpoints for a very simple test */
         String[] endpoints = new String[] { "A", "B", "C", "D", "E" };
-        SingleCellLattice<String> lattice = new SingleCellLattice<String>();
+        SingleCellLattice<String> lattice = new SingleCellLattice<>();
         lattice.addEndpoints(Arrays.asList(endpoints));
 
         MockFragmentStore mockStore = new MockFragmentStore();
-        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<String>(mockStore);
+        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<>(mockStore);
 
         for (int i = 0; i < 2; i++) {
             try {
@@ -68,17 +68,17 @@ public class StatefulSearchingShuffleSharderTests {
         String[] endpoints = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
                 "P", "Q", "R", "S", "T" };
 
-        SingleCellLattice<String> lattice = new SingleCellLattice<String>();
+        SingleCellLattice<String> lattice = new SingleCellLattice<>();
         lattice.addEndpoints(Arrays.asList(endpoints));
 
         MockFragmentStore mockFragmentStore = new MockFragmentStore();
-        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<String>(mockFragmentStore);
+        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<>(mockFragmentStore);
 
         /*
          * Compute 100 different shards and count how often each letter is
          * observed
          */
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 100; i++) {
             Lattice<String> shard = sharder.shuffleShard(lattice, 4, 2);
 
@@ -109,20 +109,19 @@ public class StatefulSearchingShuffleSharderTests {
         String[] endpointsA = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
         String[] endpointsB = new String[] { "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" };
 
-        OneDimensionalLattice<String> lattice = new OneDimensionalLattice<String>("AZ");
+        OneDimensionalLattice<String> lattice = new OneDimensionalLattice<>("AZ");
         lattice.addEndpoints("us-east-1a", Arrays.asList(endpointsA));
         lattice.addEndpoints("us-east-1b", Arrays.asList(endpointsB));
 
-        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<String>(
+        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<>(
                 new MockFragmentStore());
 
         /*
          * Compute all 100 different shards and count how often each letter is
          * observed
          */
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 45; i++) {
-            ;
             Lattice<String> shard = sharder.shuffleShard(lattice, 2, 2);
 
             /*
@@ -142,12 +141,12 @@ public class StatefulSearchingShuffleSharderTests {
             }
 
             /* Confirm that endpoints stay in their own cells */
-            for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a"))) {
-                assertEquals(true, Arrays.asList(endpointsA).contains(letter));
+            for (String letter : shard.getEndpointsForSector(List.of("us-east-1a"))) {
+                assertTrue(Arrays.asList(endpointsA).contains(letter));
             }
 
-            for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b"))) {
-                assertEquals(true, Arrays.asList(endpointsB).contains(letter));
+            for (String letter : shard.getEndpointsForSector(List.of("us-east-1b"))) {
+                assertTrue(Arrays.asList(endpointsB).contains(letter));
             }
         }
 
@@ -164,16 +163,16 @@ public class StatefulSearchingShuffleSharderTests {
         String[] endpointsB1 = new String[] { "K", "L", "M", "N", "O" };
         String[] endpointsB2 = new String[] { "P", "Q", "R", "S", "T" };
 
-        TwoDimensionalLattice<String> lattice = new TwoDimensionalLattice<String>("AZ", "Version");
+        TwoDimensionalLattice<String> lattice = new TwoDimensionalLattice<>("AZ", "Version");
         lattice.addEndpoints("us-east-1a", "1", Arrays.asList(endpointsA1));
         lattice.addEndpoints("us-east-1a", "2", Arrays.asList(endpointsA2));
         lattice.addEndpoints("us-east-1b", "1", Arrays.asList(endpointsB1));
         lattice.addEndpoints("us-east-1b", "2", Arrays.asList(endpointsB2));
 
-        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<String>(
+        StatefulSearchingShuffleSharder<String> sharder = new StatefulSearchingShuffleSharder<>(
                 new MockFragmentStore());
 
-        Map<String, Integer> countByLetter = new HashMap<String, Integer>();
+        Map<String, Integer> countByLetter = new HashMap<>();
         for (int i = 0; i < 20; i++) {
             Lattice<String> shard = sharder.shuffleShard(lattice, 2, 2);
 
@@ -196,22 +195,22 @@ public class StatefulSearchingShuffleSharderTests {
             /* Confirm that endpoints stay in their own cells */
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "1")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "1"))) {
-                    assertEquals(true, Arrays.asList(endpointsA1).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA1).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1a", "2")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1a", "2"))) {
-                    assertEquals(true, Arrays.asList(endpointsA2).contains(letter));
+                    assertTrue(Arrays.asList(endpointsA2).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "1")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "1"))) {
-                    assertEquals(true, Arrays.asList(endpointsB1).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB1).contains(letter));
                 }
             }
             if (shard.getEndpointsForSector(Arrays.asList("us-east-1b", "2")) != null) {
                 for (String letter : shard.getEndpointsForSector(Arrays.asList("us-east-1b", "2"))) {
-                    assertEquals(true, Arrays.asList(endpointsB2).contains(letter));
+                    assertTrue(Arrays.asList(endpointsB2).contains(letter));
                 }
             }
         }

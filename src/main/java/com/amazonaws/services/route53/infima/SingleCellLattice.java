@@ -20,7 +20,7 @@ public class SingleCellLattice<T> extends OneDimensionalLattice<T> {
     /*
      * Single Cells don't have any dimensions, so use dimension X
      */
-    private static String DIMENSION = "DimensionX";
+    private static final String DIMENSION = "DimensionX";
 
     /**
      * Create a single cell lattice. All of the elements in this lattice are in

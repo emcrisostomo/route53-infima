@@ -5,7 +5,6 @@
  */
 package com.amazonaws.services.route53.infima;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -25,7 +24,7 @@ public class OneDimensionalLattice<T> extends Lattice<T> {
      *            name for the dimension
      */
     public OneDimensionalLattice(String dimensionXname) {
-        super(Arrays.asList(dimensionXname));
+        super(Collections.singletonList(dimensionXname));
     }
 
     /**
@@ -45,7 +44,7 @@ public class OneDimensionalLattice<T> extends Lattice<T> {
      *            List of endpoints to include in the lattice
      */
     public void addEndpoints(String dimensionXcoord, Collection<T> endpoints) {
-        super.addEndpointsForSector(Arrays.asList(dimensionXcoord), endpoints);
+        super.addEndpointsForSector(Collections.singletonList(dimensionXcoord), endpoints);
     }
 
     /**
@@ -56,7 +55,7 @@ public class OneDimensionalLattice<T> extends Lattice<T> {
      * @return the endpoints for the given coordinate
      */
     public Collection<T> getEndpoints(String dimensionXcoord) {
-        return super.getEndpointsForSector(Arrays.asList(dimensionXcoord));
+        return super.getEndpointsForSector(Collections.singletonList(dimensionXcoord));
     }
 
     /**
