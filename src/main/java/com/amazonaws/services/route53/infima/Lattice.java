@@ -18,19 +18,19 @@ import java.util.TreeMap;
 /**
  * A lattice for describing the end points associated with a service and how
  * they are compartmentalized.
- * 
+ *
  * The basic idea behind a lattice is to describe the availability and
  * fault-isolating compartments in which service end points are located. Lattice
  * can be N-dimensional, where each dimension is a type of dependency that may
  * cause a fault.
- * 
+ *
  * An example of a one dimensional lattice is a service that is spread across
  * multiple Amazon Web Services availability zones. For example some end points
  * may be in availability zone us-east-1a, some in us-east-1b and some in
  * us-east-1c. With a Lattice we can associate each endpoint with its
  * availability zone and also simulate failure of any zone and generate a new
  * lattice with the failed endpoints removed.
- * 
+ *
  * <pre>
  *    us-east-1a     us-east-1b     us-east-1c
  * +--------------+--------------+--------------+
@@ -39,14 +39,14 @@ import java.util.TreeMap;
  * |              |              |              |
  * +--------------+--------------+--------------+
  * </pre>
- * 
+ *
  * With a Lattice we can associate each endpoint with its availability zone and
  * also simulate failure of any zone and generate a new lattice with the failed
  * endpoints removed.
- * 
+ *
  * <pre>
  * simulateFailure("AvailabilityZone", "us-east-1a") =
- * 
+ *
  *    us-east-1b     us-east-1c
  * +--------------+--------------+
  * |              |              |
@@ -54,13 +54,13 @@ import java.util.TreeMap;
  * |              |              |
  * +--------------+--------------+
  * </pre>
- * 
+ *
  * A more complex example is a two dimensional lattice. For example a service
  * may consist of endpoints in multiple availability zones by may also use run
  * two different software implementations in each zone. Since a bug in one
  * implementation could impact many end points, this is considered an orthagonal
  * axis in the lattice.
- * 
+ *
  * <pre>
  *           us-east-1a     us-east-1b     us-east-1c
  *        +--------------+--------------+--------------+
@@ -73,13 +73,13 @@ import java.util.TreeMap;
  *        |              |              |              |
  *        +--------------+--------------+--------------+
  * </pre>
- * 
+ *
  * Again, failures may be simulated, now in two different dimensions. For
  * example;
- * 
+ *
  * <pre>
  * simulateFailure("AvailabilityZone", "us-east-1b") =
- * 
+ *
  *           us-east-1a     us-east-1c
  *        +--------------+--------------+
  *        |              |              |
@@ -90,7 +90,7 @@ import java.util.TreeMap;
  *  Ruby  |     D E F    |    P Q R     |
  *        |              |              |
  *        +--------------+--------------+
- *        
+ *
  * simulateFailure("SoftwareImplementation", "Python") =
  *           us-east-1a     us-east-1b     us-east-1c
  *        +--------------+--------------+--------------+
@@ -99,9 +99,9 @@ import java.util.TreeMap;
  *        |              |              |              |
  *        +--------------+--------------+--------------+
  * </pre>
- * 
+ *
  * Higher dimensional lattices are also permitted.
- * 
+ *
  * @param <T>
  *            The type for the endpoints in the lattice.
  */
@@ -122,10 +122,11 @@ public class Lattice<T> {
         @Override
         public int compareTo(Coordinate other) {
 
+            if (other.size() < this.size()) {
+                return -1;
+            }
+
             for (int i = 0; i < this.size(); i++) {
-                if (other.size() < i) {
-                    return -1;
-                }
                 if (!other.get(i).equals(this.get(i))) {
                     return this.get(i).compareTo(other.get(i));
                 }
@@ -134,6 +135,29 @@ public class Lattice<T> {
             return 0;
         }
 
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o)
+                return true;
+
+            if (!(o instanceof Coordinate))
+                return false;
+
+            var other = (Coordinate) o;
+
+            if (other.size() != this.size())
+                return false;
+
+            for (int i = 0; i < this.size(); i++) {
+                if (!other.get(i).equals(this.get(i)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     /* We store a copy of the dimension names */
@@ -150,8 +174,8 @@ public class Lattice<T> {
     /*
      * We keep a map of the end-points by sector coordinates. For example if our
      * dimensions are "AvailabilityZone" and "SoftwareVersion" then we might
-     * have something like;
-     * 
+     * have something like:
+     *
      * [ "us-east-1a", "v2.1" ] -> [
      * set-of-end-points-in-us-east-1a-running-v2.1 ]
      */
@@ -161,7 +185,7 @@ public class Lattice<T> {
      * Create an n-dimensional Lattice where each dimension represents a
      * meaningful availability axis. For example a List containing the strings
      * "AvailabilityZone", "SoftwareVersion" creates a two dimensional lattice.
-     * 
+     *
      * @param dimensionNames
      *            List of human-meaningful names for the dimensions.
      */
@@ -179,7 +203,7 @@ public class Lattice<T> {
 
     /**
      * Add all of the end-points associated with a particular sector.
-     * 
+     *
      * @param sectorCoordinates
      *            The coordinates of the sector
      * @param endpoints
@@ -205,7 +229,7 @@ public class Lattice<T> {
 
     /**
      * Get the endpoints in a particular sector
-     * 
+     *
      * @param sectorCoordinates
      *            The coordintes of the sector
      * @return All end-points associated with a particular sector
@@ -220,7 +244,7 @@ public class Lattice<T> {
 
     /**
      * Get all of the end-points in the lattice
-     * 
+     *
      * @return all end-points in the lattice
      */
     public List<T> getAllEndpoints() {
@@ -233,7 +257,7 @@ public class Lattice<T> {
 
     /**
      * Get a list of all cells in the lattice
-     * 
+     *
      * @return A list of the coordinates for all cells in the lattice
      */
     public Set<List<String>> getAllCoordinates() {
@@ -243,7 +267,7 @@ public class Lattice<T> {
 
     /**
      * How many dimensions does this lattice have?
-     * 
+     *
      * @return The dimensionality of this lattice
      */
     public Map<String, Integer> getDimensionality() {
@@ -258,7 +282,7 @@ public class Lattice<T> {
 
     /**
      * Get the list of dimension names
-     * 
+     *
      * @return the list of dimension names
      */
     public List<String> getDimensionNames() {
@@ -267,7 +291,7 @@ public class Lattice<T> {
 
     /**
      * Get the dimension name for a given numbered dimension
-     * 
+     *
      * @param dimension
      *            the numbered dimension
      * @return the dimension name
@@ -279,7 +303,7 @@ public class Lattice<T> {
     /**
      * Get the set of values for a given dimension, e.g. ["us-east-1a",
      * "us-east-1b"] may be valid values for the "AvailabilityZone" dimension.
-     * 
+     *
      * @param dimensionName
      *            The name of the dimension
      * @return The set of valid values for this dimension
@@ -290,7 +314,7 @@ public class Lattice<T> {
 
     /**
      * How many discrete coordinates are there in a given dimension
-     * 
+     *
      * @param dimensionName
      *            The dimension
      * @return the number of coordinate values this dimension contains
@@ -302,7 +326,7 @@ public class Lattice<T> {
     /**
      * Simulate failure of a particular slice of cells in the lattice. E.g.
      * remove all endpoints that have "AvailabilityZone" => "us-east-1a".
-     * 
+     *
      * @param dimensionName
      *            The dimension on which the failure should occur
      * @param dimensionValue
